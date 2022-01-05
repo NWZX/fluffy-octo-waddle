@@ -213,7 +213,6 @@ const ShoppingListScreen = (props: Props): JSX.Element => {
                                                 );
                                             }}
                                             onEdited={async (text) => {
-                                                console.log('Edited');
                                                 await renameListItem(
                                                     item.id,
                                                     text

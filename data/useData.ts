@@ -71,10 +71,8 @@ const getShareLink = httpsCallable<
 export const generateShareLink = async (shoppingListId: string) => {
     try {
         const result = await getShareLink({ id: shoppingListId });
-        console.log(result.data);
         return result.data;
     } catch (error: any) {
-        console.log(error.message);
         return { code: 500, message: error.message, data: null };
     }
 };
@@ -91,7 +89,6 @@ export const handleRedirect = async (
     url?: string
 ): Promise<void> => {
     let data = Linking.parse(event.url);
-    console.log(data);
     if (data.path === 'openShare' && data.queryParams?.id) {
         try {
             const platformId = await getPlatformId();
@@ -99,9 +96,6 @@ export const handleRedirect = async (
                 id: data.queryParams.id,
                 platformId: platformId
             });
-            console.log(result.data);
-        } catch (error: any) {
-            console.log(error.message);
-        }
+        } catch (error: any) {}
     }
 };

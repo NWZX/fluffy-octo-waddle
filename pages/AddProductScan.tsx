@@ -120,7 +120,6 @@ const AddProductScan = ({}: Props): JSX.Element => {
                 `https://world.openfoodfacts.org/api/v2/product/${scanningResult.data}`
             );
             const clearResult = clearOpenFoodData(result);
-            console.log(clearResult);
             setStateIconStatus(1);
             setTimeout(() => {
                 setScanned(false);
@@ -140,7 +139,6 @@ const AddProductScan = ({}: Props): JSX.Element => {
             }, 1000);
         }
     };
-    console.log(scanned);
 
     if (hasPermission === null) {
         return <Text>Requesting for camera permission</Text>;

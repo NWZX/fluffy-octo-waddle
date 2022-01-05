@@ -111,7 +111,7 @@ export const shareGateway = functions.https.onRequest(async (request, response) 
         .doc(id)
         .get();
     if (snapshot.exists) {
-      response.redirect("waddle://openShare?id=" + snapshot.id);
+      response.redirect("sheddle:///openShare?id=" + snapshot.id);
     } else {
       response.status(400).send("Bad request");
     }
