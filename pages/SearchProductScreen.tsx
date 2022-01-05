@@ -1,16 +1,4 @@
-import {
-    Box,
-    Button,
-    Fab,
-    FlatList,
-    HStack,
-    Icon,
-    IconButton,
-    Input,
-    Pressable,
-    Text,
-    VStack
-} from 'native-base';
+import { Box, FlatList, HStack, Icon, Input, Pressable } from 'native-base';
 import { MaterialIcons, Entypo } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';

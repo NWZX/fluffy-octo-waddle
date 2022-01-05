@@ -24,12 +24,11 @@ import {
     Timestamp,
     query,
     where,
-    deleteDoc,
     arrayRemove
 } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { IDataShoppingListItem } from '../data/models/IShoppingList';
-import { firestore, generateShareLink, ShoppingListCol } from '../data/useData';
+import { generateShareLink, ShoppingListCol } from '../data/useData';
 import { useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 

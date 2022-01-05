@@ -2,8 +2,6 @@ import {
     Box,
     Button,
     Center,
-    Fab,
-    FlatList,
     HStack,
     Icon,
     IconButton,
@@ -14,7 +12,7 @@ import {
     Text,
     VStack
 } from 'native-base';
-import { MaterialIcons, Entypo } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';

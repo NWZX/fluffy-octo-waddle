@@ -10,7 +10,7 @@ import {
     Text,
     VStack
 } from 'native-base';
-import { MaterialIcons, Entypo } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';

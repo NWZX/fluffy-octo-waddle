@@ -1,25 +1,10 @@
-import {
-    Box,
-    Center,
-    HStack,
-    Icon,
-    IconButton,
-    Image,
-    Input,
-    Pressable,
-    Spinner,
-    Text,
-    VStack
-} from 'native-base';
+import { Center, Icon, IconButton, Text } from 'native-base';
 import { StyleSheet } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../App';
 import { useNavigation, useRoute } from '@react-navigation/core';
-import { IDataProductItem } from '../data/models/IProduct';
-import { ProductCol, ShoppingListCol } from '../data/useData';
-import { addDoc, doc, Timestamp } from 'firebase/firestore';
 import { BarCodeScanningResult, Camera } from 'expo-camera';
 import { fetchGetJSON } from '../data/api-helpers';
 import { BarCodeScanner } from 'expo-barcode-scanner';
