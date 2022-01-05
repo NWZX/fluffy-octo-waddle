@@ -6,7 +6,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     name: 'Sheddle',
     slug: 'sheddle',
     scheme: 'sheddle',
-    version: '1.0.0',
+    version: '1.0.1',
     orientation: 'portrait',
     icon: './assets/maskable_icon_alpha.png',
     splash: {
@@ -19,12 +19,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     assetBundlePatterns: ['**/*'],
     ios: {
-        buildNumber: '1.0.0',
+        buildNumber: '1.0.1',
         supportsTablet: true
     },
     android: {
         package: 'com.nwzx.sheddle',
-        versionCode: 1,
+        versionCode: 2,
         adaptiveIcon: {
             foregroundImage: './assets/maskable_icon_alpha.png',
             backgroundColor: '#FFFFFF'
