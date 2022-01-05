@@ -3,11 +3,12 @@ import 'dotenv/config';
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
     ...config,
-    name: 'Waddle',
-    slug: 'waddle',
+    name: 'Sheddle',
+    slug: 'sheddle',
+    scheme: 'sheddle',
     version: '1.0.0',
     orientation: 'portrait',
-    icon: './assets/icon.png',
+    icon: './assets/maskable_icon_alpha.png',
     splash: {
         image: './assets/splash.png',
         resizeMode: 'contain',
@@ -22,10 +23,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         supportsTablet: true
     },
     android: {
-        package: 'com.nwzx.waddle',
+        package: 'com.nwzx.sheddle',
         versionCode: 1,
         adaptiveIcon: {
-            foregroundImage: './assets/adaptive-icon.png',
+            foregroundImage: './assets/maskable_icon_alpha.png',
             backgroundColor: '#FFFFFF'
         }
     },
@@ -34,6 +35,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     extra: {
         gatewayAPI: '',
-        firebaseConfig: process.env.FIREBASE_CONFIG || '{}'
+        firebaseConfig: process.env.FIREBASE_CONFIG || '{}',
+        AlgoliaId: process.env.ALGOLIA_APP_ID || '{}',
+        AlgoliaKey: process.env.ALGOLIA_SEARCH_KEY || '{}'
     }
 });

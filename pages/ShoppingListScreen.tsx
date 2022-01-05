@@ -1,4 +1,14 @@
-import { Box, Fab, FlatList, Icon, IconButton, Pressable } from 'native-base';
+import * as Clipboard from 'expo-clipboard';
+import { useAssets } from 'expo-asset';
+import {
+    Box,
+    Fab,
+    FlatList,
+    Icon,
+    Image,
+    Pressable,
+    useToast
+} from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import React, { useState } from 'react';
@@ -13,13 +23,22 @@ import {
     addDoc,
     Timestamp,
     query,
-    where
+    where,
+    deleteDoc,
+    arrayRemove
 } from 'firebase/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { IDataShoppingListItem } from '../data/models/IShoppingList';
-import { firestore, ShoppingListCol } from '../data/useData';
+import { firestore, generateShareLink, ShoppingListCol } from '../data/useData';
 import { useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
+
+const LogoTitle = (): JSX.Element | null => {
+    const [assets, error] = useAssets([require('../assets/favicon.png')]);
+    return assets ? (
+        <Image width="50px" height="50px" source={{ uri: assets[0].uri }} />
+    ) : null;
+};
 
 type Props = {};
 
@@ -28,19 +47,18 @@ type NavProps = NativeStackNavigationProp<RootStackParamList, 'ShoppingList'>;
 
 const ShoppingListScreen = (props: Props): JSX.Element => {
     const navigation = useNavigation<NavProps>();
+    const toast = useToast();
     const { platformId } = useAppContext();
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
-            title: 'Waddle',
+            headerTitle: () => <LogoTitle />,
             headerTitleStyle: {
                 fontSize: 18,
                 fontFamily: 'Roboto'
             }
         });
     }, [navigation]);
-
-    console.log(platformId);
 
     const [snapshot, loading] = useCollectionData<IDataShoppingListItem>(
         platformId
@@ -55,6 +73,7 @@ const ShoppingListScreen = (props: Props): JSX.Element => {
     );
 
     const [data, setData] = useImmer<Map<string, boolean>>(new Map());
+    const [newList, setNewList] = useState<IDataShoppingListItem | undefined>();
 
     useEffect((): void => {
         if (snapshot) {
@@ -82,6 +101,7 @@ const ShoppingListScreen = (props: Props): JSX.Element => {
     ): Promise<void> => {
         await addDoc(ShoppingListCol, {
             ...item,
+            allowedDeviceIds: [platformId],
             timestamp: Timestamp.now().toMillis()
         });
     };
@@ -105,13 +125,43 @@ const ShoppingListScreen = (props: Props): JSX.Element => {
                 mt={2}
             >
                 <FlatList
-                    data={snapshot}
+                    data={
+                        snapshot
+                            ? newList
+                                ? [newList, ...snapshot]
+                                : snapshot
+                            : []
+                    }
                     renderItem={({ item }: { item: IDataShoppingListItem }) => {
+                        if (item.id === 'fresh-item') {
+                            return (
+                                <ListItem
+                                    key={item.id}
+                                    pirmaryText={''}
+                                    isEdit={true}
+                                    onDelete={async () => {
+                                        setNewList(undefined);
+                                    }}
+                                    onEdited={async (text) => {
+                                        setNewList(undefined);
+                                        if (text.length > 0) {
+                                            await addListItem({
+                                                title: text,
+                                                productQuantity: 0,
+                                                productValidated: 0
+                                            });
+                                            setNewList(undefined);
+                                        }
+                                    }}
+                                />
+                            );
+                        }
                         const missingItems =
                             item.productQuantity - item.productValidated;
                         const status = missingItems > 1 ? 2 : missingItems;
                         return (
                             <Pressable
+                                key={item.id}
                                 onPress={() =>
                                     buttonAction(item.id, item.title)
                                 }
@@ -135,6 +185,34 @@ const ShoppingListScreen = (props: Props): JSX.Element => {
                                             isHovered={isHovered}
                                             isPressed={isPressed}
                                             isEdit={data.get(item.id)}
+                                            onShare={async () => {
+                                                const linkData =
+                                                    await generateShareLink(
+                                                        item.id
+                                                    );
+                                                const link =
+                                                    linkData.data?.linkUrl;
+                                                Clipboard.setString(link);
+                                                toast.show({
+                                                    description:
+                                                        'Copy to clipboard'
+                                                });
+                                            }}
+                                            onDelete={async () => {
+                                                setDoc(
+                                                    doc(
+                                                        ShoppingListCol,
+                                                        item.id
+                                                    ),
+                                                    {
+                                                        allowedDeviceIds:
+                                                            arrayRemove(
+                                                                platformId
+                                                            )
+                                                    },
+                                                    { merge: true }
+                                                );
+                                            }}
                                             onEdited={async (text) => {
                                                 console.log('Edited');
                                                 await renameListItem(
@@ -166,10 +244,13 @@ const ShoppingListScreen = (props: Props): JSX.Element => {
                             name="add"
                             size="sm"
                             onPress={() =>
-                                addListItem({
+                                setNewList({
+                                    id: 'fresh-item',
                                     title: '',
                                     productQuantity: 0,
-                                    productValidated: 0
+                                    productValidated: 0,
+                                    timestamp: 0,
+                                    allowedDeviceIds: []
                                 })
                             }
                         />

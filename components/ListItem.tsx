@@ -10,6 +10,7 @@ import {
 import { MaterialIcons } from '@expo/vector-icons';
 import React, { InputHTMLAttributes, useRef, useState } from 'react';
 import { ColorType } from 'native-base/lib/typescript/components/types';
+import { Keyboard } from 'react-native';
 
 interface Props {
     pirmaryText: string;
@@ -19,6 +20,8 @@ interface Props {
     isFocused?: boolean;
     isPressed?: boolean;
     isEdit?: boolean;
+    onDelete?: () => void;
+    onShare?: () => void;
     onEdited?: (text: string) => void;
 }
 
@@ -26,6 +29,8 @@ const ListItem = ({
     isHovered,
     isPressed,
     isEdit,
+    onDelete,
+    onShare,
     onEdited,
     pirmaryText,
     secondaryText,
@@ -103,8 +108,9 @@ const ListItem = ({
                         icon={
                             <Icon
                                 as={MaterialIcons}
-                                name={isEdit ? 'mode-edit' : 'share'}
+                                name={isEdit ? 'delete' : 'share'}
                                 size="md"
+                                onPress={isEdit ? onDelete : onShare}
                             />
                         }
                         _pressed={{ borderRadius: 50 }}

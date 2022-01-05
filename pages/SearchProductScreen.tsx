@@ -12,11 +12,16 @@ import {
     VStack
 } from 'native-base';
 import { MaterialIcons, Entypo } from '@expo/vector-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ListProduct from '../components/ListProduct';
 import { RootStackParamList } from '../App';
 import { useNavigation } from '@react-navigation/core';
+
+import algoliasearch from 'algoliasearch/lite';
+import { IDataProductItemAlgolia } from '../data/models/IProduct';
+import { AlgoliaConfig, ProductCol } from '../data/useData';
+import { doc, setDoc } from 'firebase/firestore';
 
 type Props = {};
 
@@ -32,6 +37,8 @@ type NavProps = NativeStackNavigationProp<RootStackParamList, 'SearchProduct'>;
 
 const SearchProduct = ({}: Props): JSX.Element => {
     const navigation = useNavigation<NavProps>();
+    const [result, setResult] = useState<IDataProductItemAlgolia[]>();
+    const [search, setSearch] = useState<string>('');
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
@@ -40,26 +47,35 @@ const SearchProduct = ({}: Props): JSX.Element => {
         });
     }, [navigation]);
 
-    const [data, setData] = useState<IDataItem[]>([
-        {
-            name: 'Lait',
-            quantity: 6,
-            isChecked: false,
-            id: '0'
-        },
-        {
-            name: 'Nutella',
-            quantity: 2,
-            isChecked: false,
-            id: '1'
-        },
-        {
-            name: 'Nesquick',
-            quantity: 5,
-            isChecked: true,
-            id: '2'
+    useEffect(() => {
+        if (search.length > 0 && search.length % 2 === 0) {
+            const searchClient = algoliasearch(
+                AlgoliaConfig.id,
+                AlgoliaConfig.key
+            );
+            const index = searchClient.initIndex('dev_waddle');
+            index
+                .search<IDataProductItemAlgolia>(search, {
+                    hitsPerPage: 10
+                })
+                .then((v) => {
+                    setResult(v.hits);
+                });
         }
-    ]);
+    }, [search]);
+
+    const toggleCheckProduct = async (
+        id: string,
+        currentState: boolean
+    ): Promise<void> => {
+        await setDoc(
+            doc(ProductCol, id),
+            {
+                isChecked: !currentState
+            },
+            { merge: true }
+        );
+    };
 
     return (
         <>
@@ -88,26 +104,45 @@ const SearchProduct = ({}: Props): JSX.Element => {
                                     onPress={() => navigation.goBack()}
                                 />
                             }
+                            onChangeText={(text): void => {
+                                setSearch(text);
+                            }}
                             placeholder="Product"
                         />
                     </Box>
                 </HStack>
 
                 <FlatList
-                    data={data}
-                    renderItem={({ item: listItem }) => {
+                    data={result}
+                    renderItem={({
+                        item
+                    }: {
+                        item: IDataProductItemAlgolia;
+                    }) => {
                         return (
                             <Pressable
+                                key={item.ObjectID}
+                                delayLongPress={300}
+                                onPress={() =>
+                                    toggleCheckProduct(
+                                        item.ObjectID,
+                                        item.isChecked
+                                    )
+                                }
                                 onLongPress={() => {
-                                    navigation.navigate('EditProduct');
+                                    //@ts-ignore
+                                    navigation.navigate('EditProduct', {
+                                        ProductId: item.ObjectID
+                                    });
                                 }}
                             >
                                 {({ isHovered, isFocused, isPressed }) => {
                                     return (
                                         <ListProduct
-                                            pirmaryText={listItem.name}
-                                            secondaryText={`Quantity : ${listItem.quantity}`}
-                                            isChecked={listItem.isChecked}
+                                            pirmaryText={`${item.title}`}
+                                            secondaryText={`Quantity : ${item.quantity}`}
+                                            picture={item.picture}
+                                            isChecked={item.isChecked}
                                             isPressed={isPressed}
                                         />
                                     );
@@ -116,12 +151,6 @@ const SearchProduct = ({}: Props): JSX.Element => {
                         );
                     }}
                     keyExtractor={(item) => item.id}
-                    // onLeftAction={(key, dataI) => {
-                    //     const index = data.findIndex((x) => x.id === key);
-                    //     const cpData = data;
-                    //     cpData[index].isChecked = !cpData[index].isChecked;
-                    //     setData(cpData);
-                    // }}
                 />
             </Box>
         </>

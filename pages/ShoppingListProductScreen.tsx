@@ -16,8 +16,8 @@ import { useNavigation, useRoute } from '@react-navigation/core';
 
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { IDataProductItem } from '../data/models/IProduct';
-import { ProductCol } from '../data/useData';
-import { doc, setDoc } from 'firebase/firestore';
+import { ProductCol, ShoppingListCol } from '../data/useData';
+import { doc, query, setDoc, where } from 'firebase/firestore';
 
 type Props = {};
 
@@ -43,7 +43,10 @@ const ShoppingListProductScreen = ({}: Props): JSX.Element => {
     };
 
     const [snapshot, loading] = useCollectionData<IDataProductItem>(
-        ProductCol,
+        query(
+            ProductCol,
+            where('refShoppingList', '==', doc(ShoppingListCol, ShoppingListId))
+        ),
         {
             idField: 'id'
         }
@@ -120,6 +123,7 @@ const ShoppingListProductScreen = ({}: Props): JSX.Element => {
                     renderItem={({ item }: { item: IDataProductItem }) => {
                         return (
                             <Pressable
+                                key={item.id}
                                 delayLongPress={300}
                                 onPress={() =>
                                     toggleCheckProduct(item.id, item.isChecked)

@@ -1,13 +1,14 @@
 import AppLoading from 'expo-app-loading';
+import * as Linking from 'expo-linking';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { IconButton, NativeBaseProvider } from 'native-base';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { getApps, initializeApp } from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
+import 'firebase/functions';
 
 import ShoppingListScreen from './pages/ShoppingListScreen';
 import ShoppingListProductScreen from './pages/ShoppingListProductScreen';
@@ -18,8 +19,8 @@ import { enableMapSet } from 'immer';
 import { LogBox } from 'react-native';
 import AddProductScan from './pages/AddProductScan';
 import { AppContextProvider } from './context/AppContext';
+import { handleRedirect } from './data/useData';
 enableMapSet();
-
 LogBox.ignoreAllLogs(true);
 
 export type RootStackParamList = {
@@ -32,8 +33,11 @@ export type RootStackParamList = {
 };
 
 const App = (): JSX.Element => {
-    const buttonAction = (): void => {};
     const Stack = createNativeStackNavigator<RootStackParamList>();
+
+    useEffect(() => {
+        Linking.addEventListener('url', handleRedirect);
+    }, []);
 
     return (
         <AppContextProvider>
